@@ -127,7 +127,7 @@ function getUserQuantity(id, stockQuant, prodName, prodPrice){
             message: "Please enter the quantity of the product you would like to add to your cart!"
         }
     ]).then(function(answer){
-        if(answer.number < stockQuant){
+        if(answer.number <= stockQuant){
             console.log("Coming right up!".cyan);
             connection.query("UPDATE products SET ? WHERE ?",
             [
@@ -189,9 +189,9 @@ function checkOut(){
         );
     }
     summaryTable.push([
-        "","","", "Total".green, '$' + total.toFixed(2)
+        "","","", "Total".green, '$' + total.toFixed(2);
     ]
-    )
+    );
     console.log(summaryTable.toString());
     confirm("Would you like to make another order", getProducts, closeOut);
 }
