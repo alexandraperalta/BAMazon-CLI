@@ -8,8 +8,8 @@ var colors = require('colors');
 var customerCart = [];
 
 function greeting(){
-    figlet.text('BAMazon!', {
-        font: 'Standard',
+    figlet.text( 'BAMazon!', {
+        font: 'jazmine',
         horizontalLayout: 'default',
         verticalLayout: 'default'
     }, function(err, data) {
@@ -18,7 +18,6 @@ function greeting(){
             console.dir(err);
             return;
         }
-        // console.log("Welcome to")
         console.log(data.white);  
         runBamazon(); 
     });
@@ -189,7 +188,7 @@ function checkOut(){
         );
     }
     summaryTable.push([
-        "","","", "Total".green, '$' + total.toFixed(2);
+        "","","", "Total".green, '$' + total.toFixed(2)
     ]
     );
     console.log(summaryTable.toString());
