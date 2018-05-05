@@ -7,19 +7,22 @@ var colors = require('colors');
 
 var customerCart = [];
 
-figlet.text('BAMazon!', {
-    font: 'Cursive',
-    horizontalLayout: 'default',
-    verticalLayout: 'default'
-}, function(err, data) {
-    if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-    }
-    console.log("Welcome to")
-    console.log(data);
-});
+function greeting(){
+    figlet.text('BAMazon!', {
+        font: 'Standard',
+        horizontalLayout: 'default',
+        verticalLayout: 'default'
+    }, function(err, data) {
+        if (err) {
+            console.log('Something went wrong...');
+            console.dir(err);
+            return;
+        }
+        console.log("Welcome to")
+        console.log(data);
+    });
+}
+
 //F   O   N   T   S!
 // figlet.fonts(function(err, fonts) {
 //     if (err) {
@@ -45,6 +48,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
+    greeting();
     runBamazon();    
  });
  
@@ -63,7 +67,7 @@ function getProducts(){
         for (var i = 0; i < res.length; i++) {
             table.push(
                 [
-                    res[i].item_id.toString().yellow, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity
+                    res[i].item_id.toString().yellow, res[i].product_name, res[i].department_name, '$' + res[i].price.toFixed(2), res[i].stock_quantity
                 ]
             )
           }       
@@ -88,12 +92,12 @@ function getUserProduct(){
             if (err) throw err;
             if(res.length > 0){
                 var table = new Table({
-                    head: ['ID'.cyan, 'PRODUCT'.green, 'DEPT'.green, 'PRICE'.green, 'QUANTITY'.green]
+                    head: ['ID'.cyan, 'PRODUCT'.green, 'DEPT'.green, 'PRICE'.green, 'IN STOCK'.green]
                   , colWidths: [10, 20,20, 15, 15]
                 });
                 table.push(
                     [
-                        res[0].item_id, res[0].product_name, res[0].department_name, res[0].price, res[0].stock_quantity
+                        res[0].item_id, res[0].product_name, res[0].department_name, '$' + res[0].price.toFixed(2), res[0].stock_quantity
                     ]
                 )
                 productQuantity = res[0].stock_quantity;
@@ -104,8 +108,7 @@ function getUserProduct(){
                 console.log(table.toString());
                 
                 getUserQuantity(productId, productQuantity, productName, productPrice );   
-                
-                
+                 
             }
             else{
                 console.log("That ID doesn't exist, please enter an id from the table".red  );
@@ -157,6 +160,9 @@ function getUserQuantity(id, stockQuant, prodName, prodPrice){
 function requestNewItemOrder(){
     confirm("Would you like to add another item to your order?", getUserProduct, checkOut);
 }
+function requestNewOrder(){
+    confirm("Would you like to add another item to your order?", getUserProduct, checkOut);
+}
 
 function checkOut(){
     var total = 0;
@@ -176,31 +182,17 @@ function checkOut(){
         total += totalItemCost;
         summaryTable.push(
             [
-                itemID, itemName,itemPrice, quantity, totalItemCost
+                itemID, itemName, '$' + itemPrice.toFixed(2), quantity, '$' + totalItemCost.toFixed(2)
             ]
         );
     }
     summaryTable.push([
-        "","","", "Total".green, total
+        "","","", "Total".green, '$' + total.toFixed(2)
     ]
     )
     console.log(summaryTable.toString());
+    confirm("Would you like to make another order", getProducts, closeOut);
 }
-
-function getProductName(id){
-    connection.query("SELECT * FROM products WHERE ?", { item_id: id }, function(err, res) {
-        if (err) throw err;
-        return res[0].product_name;
-      });  
-}
-
-function getProductPrice(id){
-    connection.query("SELECT * FROM products WHERE ?", { item_id: id }, function(err, res) {
-        if (err) throw err;
-        return res[0].price;
-      });  
-}
-
 function confirm(question, callbackYes, callbackNo){
     inquirer.prompt([
         {
@@ -215,4 +207,8 @@ function confirm(question, callbackYes, callbackNo){
             callbackNo()
         }
     })
+}
+function closeOut(){
+    console.log("Thank you! Come again!");
+    connection.end();
 }
