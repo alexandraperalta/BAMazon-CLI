@@ -1,0 +1,27 @@
+{
+  "name": "bamazon-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandraperalta/BAMazon-CLI.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexandraperalta/BAMazon-CLI/issues"
+  },
+  "homepage": "https://github.com/alexandraperalta/BAMazon-CLI#readme",
+  "dependencies": {
+    "cli-table": "^0.3.1",
+    "colors": "^1.2.4",
+    "dot-env": "0.0.1",
+    "figlet": "^1.2.0",
+    "inquirer": "^5.2.0",
+    "mysql": "^2.15.0"
+  }
+}
