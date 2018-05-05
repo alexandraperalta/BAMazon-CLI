@@ -18,8 +18,9 @@ function greeting(){
             console.dir(err);
             return;
         }
-        console.log("Welcome to")
-        console.log(data);
+        // console.log("Welcome to")
+        console.log(data.white);  
+        runBamazon(); 
     });
 }
 
@@ -48,8 +49,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function(err) {
     if (err) throw err;
-    greeting();
-    runBamazon();    
+    greeting();   
  });
  
 //main method
@@ -58,6 +58,7 @@ function runBamazon(){
 }
 
 function getProducts(){
+    customerCart = [];
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         var table = new Table({
@@ -152,7 +153,8 @@ function getUserQuantity(id, stockQuant, prodName, prodPrice){
             
         }
         else{
-            console.log("Insufficient stock");
+            console.log("Insufficient stock".red);
+            getUserQuantity();
         }
     })
 }
