@@ -5,7 +5,7 @@ require("dot-env");
 var Table = require('cli-table');
 var colors = require('colors');
 
-var customerCart;
+var customerCart = [];
 
 figlet.text('BAMazon!', {
     font: 'Cursive',
@@ -57,8 +57,8 @@ function getProducts(){
     connection.query("SELECT * FROM products", function(err, res) {
         if (err) throw err;
         var table = new Table({
-            head: ['ID'.cyan, 'PRODUCT'.green, 'DEPT'.green, 'PRICE'.green, 'QUANTITY'.green]
-          , colWidths: [20, 20,20, 15, 15]
+            head: ['ID'.cyan, 'PRODUCT'.green, 'DEPT'.green, 'PRICE'.green, 'IN STOCK'.green]
+          , colWidths: [10, 30,20, 15, 15]
         });
         for (var i = 0; i < res.length; i++) {
             table.push(
@@ -66,10 +66,9 @@ function getProducts(){
                     res[i].item_id.toString().yellow, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity
                 ]
             )
-          }         
-         
+          }       
         console.log(table.toString());
-        getUserProduct();
+        getUserProduct();       
       });  
       
 }   
@@ -90,7 +89,7 @@ function getUserProduct(){
             if(res.length > 0){
                 var table = new Table({
                     head: ['ID'.cyan, 'PRODUCT'.green, 'DEPT'.green, 'PRICE'.green, 'QUANTITY'.green]
-                  , colWidths: [20, 20,20, 15, 15]
+                  , colWidths: [10, 20,20, 15, 15]
                 });
                 table.push(
                     [
@@ -99,21 +98,24 @@ function getUserProduct(){
                 )
                 productQuantity = res[0].stock_quantity;
                 productId = res[0].item_id;
+                productName = res[0].product_name;
+                productPrice = res[0].price;
 
                 console.log(table.toString());
                 
-                getUserQuantity(productId, productQuantity);                
+                getUserQuantity(productId, productQuantity, productName, productPrice );   
+                
+                
             }
             else{
-                console.log("That ID doesn't exist, please enter an id from the table");
+                console.log("That ID doesn't exist, please enter an id from the table".red  );
                 getUserProduct();
             }
         })
     })    
 }
 
-function getUserQuantity(id, stockQuant){
-    
+function getUserQuantity(id, stockQuant, prodName, prodPrice){    
     inquirer.prompt([
         {
             type: "input",
@@ -122,7 +124,7 @@ function getUserQuantity(id, stockQuant){
         }
     ]).then(function(answer){
         if(answer.number < stockQuant){
-            console.log("we can do that");
+            console.log("Coming right up!".cyan);
             connection.query("UPDATE products SET ? WHERE ?",
             [
               {
@@ -134,9 +136,17 @@ function getUserQuantity(id, stockQuant){
             ],
             function(error, res) {
               if (error) throw error;
-              console.log("quantity updated");
+              var item = {
+                  itemId : id,
+                  itemQuantity : parseInt(answer.number),
+                  itemName: prodName,
+                  itemPrice: prodPrice
+              }
+              customerCart.push(item);
+                console.log("Item(s) added!".cyan);   
+                requestNewItemOrder();             
             })
-            getProducts();
+            
         }
         else{
             console.log("Insufficient stock");
@@ -144,3 +154,65 @@ function getUserQuantity(id, stockQuant){
     })
 }
 
+function requestNewItemOrder(){
+    confirm("Would you like to add another item to your order?", getUserProduct, checkOut);
+}
+
+function checkOut(){
+    var total = 0;
+
+    console.log("Here's your itemized receipt!".cyan);
+    var summaryTable = new Table({
+        head: ['ID'.cyan, 'PRODUCT'.green, 'PRICE'.green, 'QUANTITY'.green, 'TOTAL'.green]
+      , colWidths: [10, 20, 15, 15, 15]
+    });
+    
+    for(var i =0; i <customerCart.length; i++){
+        var itemID = customerCart[i].itemId;
+        var itemName =  customerCart[i].itemName;
+        var itemPrice = customerCart[i].itemPrice;
+        var quantity = customerCart[i].itemQuantity;
+        var totalItemCost = quantity * itemPrice;
+        total += totalItemCost;
+        summaryTable.push(
+            [
+                itemID, itemName,itemPrice, quantity, totalItemCost
+            ]
+        );
+    }
+    summaryTable.push([
+        "","","", "Total".green, total
+    ]
+    )
+    console.log(summaryTable.toString());
+}
+
+function getProductName(id){
+    connection.query("SELECT * FROM products WHERE ?", { item_id: id }, function(err, res) {
+        if (err) throw err;
+        return res[0].product_name;
+      });  
+}
+
+function getProductPrice(id){
+    connection.query("SELECT * FROM products WHERE ?", { item_id: id }, function(err, res) {
+        if (err) throw err;
+        return res[0].price;
+      });  
+}
+
+function confirm(question, callbackYes, callbackNo){
+    inquirer.prompt([
+        {
+            name: "response",
+            type: "confirm",
+            message: question
+        }
+    ]).then(function(answer){
+        if(answer.response){
+            callbackYes()
+        } else {
+            callbackNo()
+        }
+    })
+}
