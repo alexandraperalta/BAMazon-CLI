@@ -5,7 +5,7 @@ require("dot-env");
 var Table = require('cli-table');
 var colors = require('colors');
 
-var userQuantity;
+var customerCart;
 
 figlet.text('BAMazon!', {
     font: 'Cursive',
@@ -98,9 +98,11 @@ function getUserProduct(){
                     ]
                 )
                 productQuantity = res[0].stock_quantity;
+                productId = res[0].item_id;
+
                 console.log(table.toString());
                 
-                getUserQuantity(productQuantity);                
+                getUserQuantity(productId, productQuantity);                
             }
             else{
                 console.log("That ID doesn't exist, please enter an id from the table");
@@ -110,7 +112,7 @@ function getUserProduct(){
     })    
 }
 
-function getUserQuantity(userQuant){
+function getUserQuantity(id, stockQuant){
     
     inquirer.prompt([
         {
@@ -119,15 +121,18 @@ function getUserQuantity(userQuant){
             message: "Please enter the quantity of the product you would like to add to your cart!"
         }
     ]).then(function(answer){
-        if(answer.number < productQuantity){
+        if(answer.number < stockQuant){
             console.log("we can do that");
             connection.query("UPDATE products SET ? WHERE ?",
             [
               {
-                stock_quantity: productQuantity - userQuant
-              } 
+                stock_quantity: stockQuant - answer.number
+              } ,
+              {
+                item_id: id
+              }
             ],
-            function(error) {
+            function(error, res) {
               if (error) throw error;
               console.log("quantity updated");
             })
