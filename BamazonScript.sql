@@ -16,4 +16,9 @@ values ('MacBook', 'Electronics', 1399.99, 15),
 ('MS Surface', 'Electronics', 1150.65, 10),
 ('Electronic Keyboard', 'Music', 399.99, 5),
 ('Table Lamp', 'Home Decor', 25.00, 22),
-('Theremin', 'Music', 499.99, 11)
+('Theremin', 'Music', 499.99, 11),
+('TVs', 'Electronics', 4999.99, 5),
+('Stools', 'Home Decor', 28.99, 8),
+('Slippers', 'Shoewear', 20.55, 16),
+('Printers', 'Office', 499.99, 11),
+('Office desks', 'Office', 150.00, 4)

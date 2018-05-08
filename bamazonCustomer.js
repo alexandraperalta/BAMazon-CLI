@@ -153,7 +153,7 @@ function getUserQuantity(id, stockQuant, prodName, prodPrice){
         }
         else{
             console.log("Insufficient stock".red);
-            getUserQuantity();
+            getUserQuantity(id, stockQuant, prodName, prodPrice);
         }
     })
 }
